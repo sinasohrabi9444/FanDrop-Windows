@@ -1,0 +1,19 @@
+# build output
+/build/
+/FanDrop.exe
+/FanDrop.icon-tool.exe
+/dist/
+*.zip
+*.pdb
+
+# local test files
+/fan.png
+/sample.*
+
+# OS / editor
+Thumbs.db
+desktop.ini
+.vs/
+.vscode/
+*.suo
+*.user

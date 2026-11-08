@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build with the in-box C# compiler
+        shell: cmd
+        run: build.cmd
+
+      - name: Smoke test (render the fan headless)
+        shell: pwsh
+        run: |
+          New-Item -ItemType File -Force sample.jpg | Out-Null
+          $p = Start-Process .\FanDrop.exe -ArgumentList '--snapshot','fan.png','Convert',"$PWD\sample.jpg",'1' -Wait -PassThru
+          if ($p.ExitCode -ne 0 -or -not (Test-Path fan.png)) { throw "snapshot failed (exit $($p.ExitCode))" }
+          "FanDrop.exe: {0:N0} bytes" -f (Get-Item FanDrop.exe).Length
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item FanDrop.exe dist\
+          Compress-Archive -Path FanDrop.exe, README.md, README.fa.md, LICENSE -DestinationPath dist\FanDrop-Windows.zip -Force
+          Get-ChildItem dist -File | ForEach-Object {
+            "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name
+          } | Set-Content -Encoding ascii dist\SHA256SUMS.txt
+          Get-Content dist\SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FanDrop-${{ github.sha }}
+          path: |
+            dist/
+            fan.png
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/FanDrop.exe
+            dist/FanDrop-Windows.zip
+            dist/SHA256SUMS.txt

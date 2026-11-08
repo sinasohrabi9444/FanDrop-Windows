@@ -1,0 +1,49 @@
+name: 🐞 Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Persian or English is fine. / فارسی یا انگلیسی فرقی نمی‌کنه.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you drag, which key did you press, which blade did you drop on, and what went wrong?
+      placeholder: Dragged a .heic from Explorer, pressed Shift, dropped on JPG — got "HEIC encoding failed".
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: input
+    id: version
+    attributes:
+      label: FanDrop version
+      placeholder: v1.0.0
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: Run `winver`
+      placeholder: Windows 11 23H2
+    validations:
+      required: true
+  - type: checkboxes
+    id: deps
+    attributes:
+      label: Installed extras
+      options:
+        - label: ffmpeg
+        - label: HEIF / HEVC Store extensions
+        - label: Microsoft Word
+        - label: LibreOffice
+        - label: exiftool
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: Tray icon → Show log (`%TEMP%\fandrop.log`). Set `FANDROP_DEBUG=1` for more detail.
+      render: text
